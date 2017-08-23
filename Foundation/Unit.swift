@@ -247,18 +247,12 @@ open class Unit : NSObject, NSCopying, NSSecureCoding, Codable {
     
     // MARK: - Codable
     
-    private enum CodingKeys : Int, CodingKey {
-        case symbol
-    }
-    
     public required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.symbol = try container.decode(String.self, forKey: .symbol)
+        NSRequiresConcreteImplementation()
     }
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.symbol, forKey: .symbol)
+        NSRequiresConcreteImplementation()
     }
     
 }
@@ -302,30 +296,8 @@ open class Dimension : Unit {
         }
         aCoder.encode(self.converter, forKey:"converter")
     }
-    
-    // MARK: - Codable
-    
-    private enum CodingKeys : Int, CodingKey {
-        case converter
-    }
-    
-    public required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.converter = try container.decode(UnitConverter.self, forKey: .converter)
-        try super.init(from: decoder)
-    }
-    
-    public override func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.converter, forKey: .converter)
-        try super.encode(to: encoder)
-    }
-    
-    open override func isEqual(_ object: Any?) -> Bool {
-        if !super.isEqual(object) {
-            return false
-        }
 
+    open override func isEqual(_ object: Any?) -> Bool {
         guard let other = object as? Dimension else {
             return false
         }
@@ -334,7 +306,17 @@ open class Dimension : Unit {
             return true
         }
 
-        return self.converter == other.converter
+        return super.isEqual(object) && self.converter == other.converter
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        NSRequiresConcreteImplementation()
+    }
+    
+    public override func encode(to encoder: Encoder) throws {
+        NSRequiresConcreteImplementation()
     }
 }
 
@@ -355,10 +337,6 @@ open class UnitAcceleration : Dimension {
     }
     
     // MARK: - Codable
-    
-//    public required init(from decoder: Decoder) throws {
-//        try super.init(from: decoder)
-//    }
 
     private enum CodingKeys : Int, CodingKey {
         case symbol
@@ -370,15 +348,15 @@ open class UnitAcceleration : Dimension {
         let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
         let symbol = try container.decode(String.self, forKey: .symbol)
         super.init(symbol: symbol, converter: converter)
-//        try super.init(from: decoder)
     }
 
     public override func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.converter, forKey: .converter)
         try container.encode(self.symbol, forKey: .symbol)
-//        try super.encode(to: encoder)
     }
+
+    // MARK: -
     
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
@@ -428,18 +406,33 @@ open class UnitAngle : Dimension {
         static let gradians     = 0.9
         static let revolutions  = 360.0
     }
-    
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
+
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
+
     open class var degrees: UnitAngle {
         get {
             return UnitAngle(symbol: Symbol.degrees, coefficient: Coefficient.degrees)
@@ -525,16 +518,31 @@ open class UnitArea : Dimension {
         static let hectares             = 10000.0
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var squareMegameters: UnitArea {
         get {
@@ -647,16 +655,31 @@ open class UnitConcentrationMass : Dimension {
         static let millimolesPerLiter       = 18.0
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var gramsPerLiter: UnitConcentrationMass {
         get {
@@ -697,16 +720,31 @@ open class UnitDispersion : Dimension {
         static let partsPerMillion  = 1.0
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var partsPerMillion: UnitDispersion {
         get {
@@ -741,15 +779,31 @@ open class UnitDuration : Dimension {
         static let hours    = 3600.0
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var seconds: UnitDuration {
         get {
@@ -801,16 +855,31 @@ open class UnitElectricCharge : Dimension {
         static let microampereHours = 0.0036
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var coulombs: UnitElectricCharge {
         get {
@@ -879,16 +948,31 @@ open class UnitElectricCurrent : Dimension {
         
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var megaamperes: UnitElectricCurrent {
         get {
@@ -952,16 +1036,31 @@ open class UnitElectricPotentialDifference : Dimension {
         
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var megavolts: UnitElectricPotentialDifference {
         get {
@@ -1025,15 +1124,31 @@ open class UnitElectricResistance : Dimension {
         
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var megaohms: UnitElectricResistance {
         get {
@@ -1097,15 +1212,31 @@ open class UnitEnergy : Dimension {
         
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var kilojoules: UnitEnergy {
         get {
@@ -1174,16 +1305,31 @@ open class UnitFrequency : Dimension {
         static let nanohertz    = 1e-9
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var terahertz: UnitFrequency {
         get {
@@ -1260,16 +1406,31 @@ open class UnitFuelEfficiency : Dimension {
         static let milesPerGallon           = 235.215
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, reciprocal: Double) {
         super.init(symbol: symbol, converter: UnitConverterReciprocal(reciprocal: reciprocal))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterReciprocal.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var litersPer100Kilometers: UnitFuelEfficiency {
         get {
@@ -1354,15 +1515,31 @@ open class UnitLength : Dimension {
         static let parsecs              = 3.086e+16
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var megameters: UnitLength {
         get {
@@ -1519,15 +1696,31 @@ open class UnitIlluminance : Dimension {
         static let lux   = 1.0
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var lux: UnitIlluminance {
         get {
@@ -1588,15 +1781,31 @@ open class UnitMass : Dimension {
         static let slugs        = 14.5939
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var kilograms: UnitMass {
         get {
@@ -1737,15 +1946,31 @@ open class UnitPower : Dimension {
         static let horsepower = 745.7
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var terawatts: UnitPower {
         get {
@@ -1854,16 +2079,31 @@ open class UnitPressure : Dimension {
         static let poundsForcePerSquareInch = 6894.76
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var newtonsPerMetersSquared: UnitPressure {
         get {
@@ -1954,16 +2194,31 @@ open class UnitSpeed : Dimension {
         static let knots                = 0.514444
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var metersPerSecond: UnitSpeed {
         get {
@@ -2022,15 +2277,31 @@ open class UnitTemperature : Dimension {
         static let fahrenheit = 255.37222222222427
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double, constant: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient, constant: constant))
     }
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var kelvin: UnitTemperature {
         get {
@@ -2133,16 +2404,31 @@ open class UnitVolume : Dimension {
         static let metricCups           = 0.25
     }
     
-    // MARK: - Codable
-    
-    public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-    }
-    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+
+    // MARK: -
     
     open class var megaliters: UnitVolume {
         get {
