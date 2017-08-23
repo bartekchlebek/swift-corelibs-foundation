@@ -2,7 +2,7 @@
  NSUnitConverter describes how to convert a unit to and from the base unit of its dimension.  Use the NSUnitConverter protocol to implement new ways of converting a unit.
  */
 
-open class UnitConverter : NSObject {
+open class UnitConverter : NSObject, Codable {
     
     
     /*
@@ -33,6 +33,20 @@ open class UnitConverter : NSObject {
     open func value(fromBaseUnitValue baseUnitValue: Double) -> Double {
         return baseUnitValue
     }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        
+    }
+    
+    public override init() {
+        
+    }
 }
 
 open class UnitConverterLinear : UnitConverter, NSSecureCoding {
@@ -51,6 +65,7 @@ open class UnitConverterLinear : UnitConverter, NSSecureCoding {
     public init(coefficient: Double, constant: Double) {
         self.coefficient = coefficient
         self.constant = constant
+        super.init()
     }
     
     open override func baseUnitValue(fromValue value: Double) -> Double {
@@ -79,6 +94,40 @@ open class UnitConverterLinear : UnitConverter, NSSecureCoding {
     }
     
     public static var supportsSecureCoding: Bool { return true }
+
+    open override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? UnitConverterLinear else {
+            return false
+        }
+
+        if self === other {
+            return true
+        }
+
+        return self.coefficient == other.coefficient
+            && self.constant == other.constant
+    }
+    
+    // MARK: - Codable
+    
+    private enum CodingKeys : Int, CodingKey {
+        case coefficient
+        case constant
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.coefficient = try container.decode(Double.self, forKey: .coefficient)
+        self.constant = try container.decode(Double.self, forKey: .constant)
+        try super.init(from: decoder)
+    }
+    
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.coefficient, forKey: .coefficient)
+        try container.encode(self.constant, forKey: .constant)
+        try super.encode(to: encoder)
+    }
 }
 
 private class UnitConverterReciprocal : UnitConverter, NSSecureCoding {
@@ -89,6 +138,7 @@ private class UnitConverterReciprocal : UnitConverter, NSSecureCoding {
     
     fileprivate init(reciprocal: Double) {
         self.reciprocal = reciprocal
+        super.init()
     }
     
     fileprivate override func baseUnitValue(fromValue value: Double) -> Double {
@@ -115,13 +165,43 @@ private class UnitConverterReciprocal : UnitConverter, NSSecureCoding {
     }
     
     fileprivate static var supportsSecureCoding: Bool { return true }
+
+    open override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? UnitConverterReciprocal else {
+            return false
+        }
+
+        if self === other {
+            return true
+        }
+
+        return self.reciprocal == other.reciprocal
+    }
+    
+    // MARK: - Codable
+    
+    private enum CodingKeys : Int, CodingKey {
+        case reciprocal
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.reciprocal = try container.decode(Double.self, forKey: .reciprocal)
+        try super.init(from: decoder)
+    }
+    
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.reciprocal, forKey: .reciprocal)
+        try super.encode(to: encoder)
+    }
 }
 
 /*
  NSUnit is the base class for all unit types (dimensional and dimensionless).
  */
 
-open class Unit : NSObject, NSCopying, NSSecureCoding {
+open class Unit : NSObject, NSCopying, NSSecureCoding, Codable {
     
     
     open private(set) var symbol: String
@@ -152,6 +232,35 @@ open class Unit : NSObject, NSCopying, NSSecureCoding {
     }
 
     public static var supportsSecureCoding: Bool { return true }
+
+    open override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? Unit else {
+            return false
+        }
+
+        if self === other {
+            return true
+        }
+
+        return self.symbol == other.symbol
+    }
+    
+    // MARK: - Codable
+    
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.symbol = try container.decode(String.self, forKey: .symbol)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.symbol, forKey: .symbol)
+    }
+    
 }
 
 open class Dimension : Unit {
@@ -193,6 +302,40 @@ open class Dimension : Unit {
         }
         aCoder.encode(self.converter, forKey:"converter")
     }
+    
+    // MARK: - Codable
+    
+    private enum CodingKeys : Int, CodingKey {
+        case converter
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.converter = try container.decode(UnitConverter.self, forKey: .converter)
+        try super.init(from: decoder)
+    }
+    
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try super.encode(to: encoder)
+    }
+    
+    open override func isEqual(_ object: Any?) -> Bool {
+        if !super.isEqual(object) {
+            return false
+        }
+
+        guard let other = object as? Dimension else {
+            return false
+        }
+
+        if self === other {
+            return true
+        }
+
+        return self.converter == other.converter
+    }
 }
 
 open class UnitAcceleration : Dimension {
@@ -209,6 +352,32 @@ open class UnitAcceleration : Dimension {
     private struct Coefficient {
         static let metersPerSecondSquared   = 1.0
         static let gravity                  = 9.81
+    }
+    
+    // MARK: - Codable
+    
+//    public required init(from decoder: Decoder) throws {
+//        try super.init(from: decoder)
+//    }
+
+    private enum CodingKeys : Int, CodingKey {
+        case symbol
+        case converter
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let converter = try container.decode(UnitConverterLinear.self, forKey: .converter)
+        let symbol = try container.decode(String.self, forKey: .symbol)
+        super.init(symbol: symbol, converter: converter)
+//        try super.init(from: decoder)
+    }
+
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.converter, forKey: .converter)
+        try container.encode(self.symbol, forKey: .symbol)
+//        try super.encode(to: encoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -258,6 +427,12 @@ open class UnitAngle : Dimension {
         static let radians      = 180.0 / .pi
         static let gradians     = 0.9
         static let revolutions  = 360.0
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -348,6 +523,12 @@ open class UnitArea : Dimension {
         static let acres                = 4046.86
         static let ares                 = 100.0
         static let hectares             = 10000.0
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -466,6 +647,12 @@ open class UnitConcentrationMass : Dimension {
         static let millimolesPerLiter       = 18.0
     }
     
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+    }
+    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
@@ -510,6 +697,12 @@ open class UnitDispersion : Dimension {
         static let partsPerMillion  = 1.0
     }
     
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+    }
+    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
@@ -546,6 +739,12 @@ open class UnitDuration : Dimension {
         static let seconds  = 1.0
         static let minutes  = 60.0
         static let hours    = 3600.0
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -600,6 +799,12 @@ open class UnitElectricCharge : Dimension {
         static let ampereHours      = 3600.0
         static let milliampereHours = 3.6
         static let microampereHours = 0.0036
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -674,6 +879,12 @@ open class UnitElectricCurrent : Dimension {
         
     }
     
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+    }
+    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
@@ -739,6 +950,12 @@ open class UnitElectricPotentialDifference : Dimension {
         static let millivolts = 1e-3
         static let microvolts = 1e-6
         
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -808,6 +1025,12 @@ open class UnitElectricResistance : Dimension {
         
     }
     
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+    }
+    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
@@ -872,6 +1095,12 @@ open class UnitEnergy : Dimension {
         static let calories         = 4.184
         static let kilowattHours    = 3600000.0
         
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -943,6 +1172,12 @@ open class UnitFrequency : Dimension {
         static let millihertz   = 1e-3
         static let microhertz   = 1e-6
         static let nanohertz    = 1e-9
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -1023,6 +1258,12 @@ open class UnitFuelEfficiency : Dimension {
         static let litersPer100Kilometers   = 1.0
         static let milesPerImperialGallon   = 282.481
         static let milesPerGallon           = 235.215
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, reciprocal: Double) {
@@ -1111,6 +1352,12 @@ open class UnitLength : Dimension {
         static let furlongs             = 201.168
         static let astronomicalUnits    = 1.496e+11
         static let parsecs              = 3.086e+16
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -1272,6 +1519,12 @@ open class UnitIlluminance : Dimension {
         static let lux   = 1.0
     }
     
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+    }
+    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
@@ -1333,6 +1586,12 @@ open class UnitMass : Dimension {
         static let carats       = 0.0002
         static let ouncesTroy   = 0.03110348
         static let slugs        = 14.5939
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {
@@ -1478,6 +1737,12 @@ open class UnitPower : Dimension {
         static let horsepower = 745.7
     }
     
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+    }
+    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
@@ -1589,6 +1854,12 @@ open class UnitPressure : Dimension {
         static let poundsForcePerSquareInch = 6894.76
     }
     
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+    }
+    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
@@ -1683,6 +1954,12 @@ open class UnitSpeed : Dimension {
         static let knots                = 0.514444
     }
     
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+    }
+    
     private init(symbol: String, coefficient: Double) {
         super.init(symbol: symbol, converter: UnitConverterLinear(coefficient: coefficient))
     }
@@ -1743,6 +2020,12 @@ open class UnitTemperature : Dimension {
         static let kelvin     = 0.0
         static let celsius    = 273.15
         static let fahrenheit = 255.37222222222427
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double, constant: Double) {
@@ -1848,6 +2131,12 @@ open class UnitVolume : Dimension {
         static let imperialQuarts       = 1.13652
         static let imperialGallons      = 4.54609
         static let metricCups           = 0.25
+    }
+    
+    // MARK: - Codable
+    
+    public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
     }
     
     private init(symbol: String, coefficient: Double) {

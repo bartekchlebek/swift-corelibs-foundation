@@ -149,6 +149,11 @@ public func /<UnitType>(lhs: Double, rhs: Measurement<UnitType>) -> Measurement<
 /// Compare two measurements of the same `Unit`.
 /// - returns: `true` if `lhs.value == rhs.value && lhs.unit == rhs.unit`.
 public func ==<UnitType>(lhs: Measurement<UnitType>, rhs: Measurement<UnitType>) -> Bool {
+    print(lhs.value, rhs.value)
+    print(lhs.unit, rhs.unit)
+    print(lhs.unit.symbol, rhs.unit.symbol)
+    print(lhs.value == rhs.value)
+    print(lhs.unit == rhs.unit)
     return lhs.value == rhs.value && lhs.unit == rhs.unit
 }
 
@@ -273,5 +278,37 @@ extension Measurement : _ObjectTypeBridgeable {
     public static func _unconditionallyBridgeFromObjectiveC(_ source: NSMeasurement?) -> Measurement {
         let u = source!.unit as! UnitType
         return Measurement(value: source!.doubleValue, unit: u)
+    }
+}
+
+//extension Unit : Codable {
+//    public convenience init(from decoder: Decoder) throws {
+//        let container = try decoder.singleValueContainer()
+//        let symbol = try container.decode(String.self)
+//        self.init(symbol: symbol)
+//    }
+//    public func encode(to encoder: Encoder) throws {
+//        var container = encoder.singleValueContainer()
+//        try container.encode(self.symbol)
+//    }
+//}
+
+extension Measurement : Codable {
+    private enum CodingKeys : Int, CodingKey {
+        case value
+        case unit
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let value = try container.decode(Double.self, forKey: .value)
+        let unit = try container.decode(UnitType.self, forKey: .unit)
+        self.init(value: value, unit: unit)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.value, forKey: .value)
+        try container.encode(self.unit, forKey: .unit)
     }
 }
