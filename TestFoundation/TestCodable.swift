@@ -401,19 +401,30 @@ class TestCodable : XCTestCase {
     }
 
     // MARK: - Measurement
-    lazy var unitValues: [Int : Dimension] = [
-        #line : UnitAcceleration.metersPerSecondSquared,
-        #line : UnitMass.kilograms,
-        #line : UnitLength.miles
-    ]
 
     func test_Measurement_JSON() {
-        expectRoundTripEqualityThroughJSON(for: Measurement(value: 42, unit: UnitAcceleration.metersPerSecondSquared))
-//        expectRoundTripEqualityThroughJSON(for: Measurement(value: 42, unit: UnitMass.kilograms))
-//        expectRoundTripEqualityThroughJSON(for: Measurement(value: 42, unit: UnitLength.miles))
-//        for unit in unitValues.values {
-//            expectRoundTripEqualityThroughJSON(for: Measurement(value: 42, unit: unit))
-//        }
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 1, unit: UnitAcceleration.metersPerSecondSquared))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 2, unit: UnitAngle.degrees))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 3, unit: UnitArea.ares))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 4, unit: UnitConcentrationMass.gramsPerLiter))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 5, unit: UnitDispersion.partsPerMillion))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 6, unit: UnitDuration.hours))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 7, unit: UnitElectricCharge.ampereHours))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 8, unit: UnitElectricCurrent.amperes))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 9, unit: UnitElectricPotentialDifference.kilovolts))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 1, unit: UnitElectricResistance.kiloohms))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 2, unit: UnitEnergy.calories))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 3, unit: UnitFrequency.hertz))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 4, unit: UnitFuelEfficiency.milesPerGallon))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 5, unit: UnitIlluminance.lux))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 6, unit: UnitLength.decameters))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 7, unit: UnitMass.carats))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 8, unit: UnitPower.gigawatts))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 9, unit: UnitPressure.gigapascals))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 1, unit: UnitSpeed.knots))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 2, unit: UnitSpeed.kilometersPerHour))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 3, unit: UnitTemperature.celsius))
+        expectRoundTripEqualityThroughJSON(for: Measurement(value: 4, unit: UnitVolume.acreFeet))
     }
 }
 
