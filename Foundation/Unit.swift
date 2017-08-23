@@ -37,11 +37,11 @@ open class UnitConverter : NSObject, Codable {
     // MARK: - Codable
     
     public required init(from decoder: Decoder) throws {
-        
+        NSRequiresConcreteImplementation()
     }
     
     public func encode(to encoder: Encoder) throws {
-        
+        NSRequiresConcreteImplementation()
     }
     
     public override init() {
