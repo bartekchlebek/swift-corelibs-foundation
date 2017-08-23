@@ -119,14 +119,13 @@ open class UnitConverterLinear : UnitConverter, NSSecureCoding {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.coefficient = try container.decode(Double.self, forKey: .coefficient)
         self.constant = try container.decode(Double.self, forKey: .constant)
-        try super.init(from: decoder)
+        super.init()
     }
     
     public override func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.coefficient, forKey: .coefficient)
         try container.encode(self.constant, forKey: .constant)
-        try super.encode(to: encoder)
     }
 }
 
@@ -187,13 +186,12 @@ private class UnitConverterReciprocal : UnitConverter, NSSecureCoding {
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.reciprocal = try container.decode(Double.self, forKey: .reciprocal)
-        try super.init(from: decoder)
+        super.init()
     }
     
     public override func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.reciprocal, forKey: .reciprocal)
-        try super.encode(to: encoder)
     }
 }
 
