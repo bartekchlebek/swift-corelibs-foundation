@@ -281,18 +281,6 @@ extension Measurement : _ObjectTypeBridgeable {
     }
 }
 
-//extension Unit : Codable {
-//    public convenience init(from decoder: Decoder) throws {
-//        let container = try decoder.singleValueContainer()
-//        let symbol = try container.decode(String.self)
-//        self.init(symbol: symbol)
-//    }
-//    public func encode(to encoder: Encoder) throws {
-//        var container = encoder.singleValueContainer()
-//        try container.encode(self.symbol)
-//    }
-//}
-
 extension Measurement : Codable {
     private enum CodingKeys : Int, CodingKey {
         case value
